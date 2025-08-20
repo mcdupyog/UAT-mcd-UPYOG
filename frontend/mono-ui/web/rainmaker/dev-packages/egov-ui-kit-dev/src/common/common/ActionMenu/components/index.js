@@ -395,18 +395,27 @@ class ActionMenuComp extends Component {
         {!mobileSearchVisible && (
           <div
             className="menu-search-container"
-            onClick={() => this.props.toggleDrawer && this.props.toggleDrawer()}
+            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingRight: 10 }}
           >
             <TextFieldIcon
               value={searchText}
               hintText={<Label label="PT_SEARCH_BUTTON" className="menuStyle" />}
               iconStyle={styles.inputIconStyle}
               inputStyle={styles.inputStyle}
-              textFieldStyle={styles.textFieldStyle}
+              textFieldStyle={{ ...styles.textFieldStyle, flex: 1 }}
               iconPosition="before"
               onChange={this.handleChange}
             />
+            <Icon
+              action="action"
+              name="home"
+              className="material-icons"
+              style={{ fontSize: 24, color: "white", cursor: "pointer", marginLeft: 10 }}
+              title="Go to Home"
+              onClick={() => (window.location.href = "/digit-ui/employee")}
+            />
           </div>
+
         )}
 
         <div className="menu-scroll-container">

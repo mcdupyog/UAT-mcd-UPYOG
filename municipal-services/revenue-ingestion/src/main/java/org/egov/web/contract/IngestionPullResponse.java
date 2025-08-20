@@ -1,5 +1,6 @@
 package org.egov.web.contract;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,9 +15,9 @@ import java.util.List;
 @Builder
 public class IngestionPullResponse {
 
-    private String tenantId;                    // e.g., pg.citya
-    private String date;                        // Response generation or pull date (e.g., yyyy-MM-dd)
-    private Integer count;                      // Number of transactions returned
-    private Long nextIdentifier;               // For pagination / next batch fetch
-    private List<IngestionTransaction> transactions; // Actual payload list
+    @JsonProperty("ResponseInfo")
+    private ResponseInfo responseInfo;
+
+    @JsonProperty("IngestionTransactions")
+    private List<IngestionTransaction> ingestionTransactions; // Actual payload list
 }

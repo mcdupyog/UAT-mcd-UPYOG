@@ -13,19 +13,20 @@ import java.time.LocalDateTime;
 @RestController
 public class IngestionController {
 
-    private IngestionService ingestionService;
+    private final IngestionService ingestionService;
 
     public IngestionController(IngestionService ingestionService) {
         this.ingestionService = ingestionService;
     }
 
-    @PostMapping("v1/fetch")
+    @PostMapping("/v1/_fetch")
     public ResponseEntity<IngestionResponse> pullData(@RequestBody IngestionRequest request) {
         Integer processedCount = ingestionService.pullTransactions(request);
         IngestionResponse response = IngestionResponse.builder()
                 .tenantId(request.getIngestionRequestCriteria().getTenantId())
                 .responseGeneratedAt(LocalDateTime.now())
                 .totalCount(processedCount)
+                .status("PROCESSED")
                 .build();
 
         return ResponseEntity.ok(response);

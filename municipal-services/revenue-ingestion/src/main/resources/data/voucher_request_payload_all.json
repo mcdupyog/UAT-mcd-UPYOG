@@ -1,0 +1,169 @@
+{
+  "RequestInfo": {
+    "authToken": "xxxxxx"
+  },
+  "vouchers": [
+    {
+      "id": null,
+      "tenantId": "pg.mcd",
+      "referenceDocument": "PTR34361683007740802",
+      "serviceName": "PROPERTY_TAX",
+      "department": "DEPT_25",
+      "name": "Property Tax Receipt",
+      "type": "Receipt",
+      "voucherNumber": null,
+      "voucherDate": "2025-06-14",
+      "description": "PROPERTY_TAX payment via HDFC",
+      "fiscalPeriod": null,
+      "status": null,
+      "originalVhId": null,
+      "refVhId": null,
+      "cgvn": null,
+      "moduleId": 10,
+      "source": "/services/collection/receipts/receipt-viewReceipts.action?selectedReceipts=PTR34361683007740802&serviceTypeId=PROPERTY_TAX",
+      "fund": {
+        "code": "01"
+      },
+      "function": {
+        "code": "000201"
+      },
+      "scheme": {
+        "code": "01"
+      },
+      "subScheme": {
+        "code": "01"
+      },
+      "fundsource": null,
+      "ledgers": [
+        {
+          "glcode": "4501001",
+          "debitAmount": 1600,
+          "creditAmount": 0.0,
+          "description": "Bank Receipt",
+          "function": {
+            "code": "000201"
+          },
+          "subledgerDetails": [
+            {
+              "accountDetailType": {
+                "name": "FinancialYear"
+              },
+              "accountDetailKey": "2023-24",
+              "amount": 1599.8
+            }
+          ]
+        },
+        {
+          "id": null,
+          "orderId": null,
+          "glcode": "4311001",
+          "debitAmount": 0.0,
+          "creditAmount": 1499.0,
+          "description": "Property Tax Bank",
+          "function": {
+            "code": "000201"
+          },
+          "subledgerDetails": [
+            {
+              "accountDetailType": {
+                "name": "FinancialYear"
+              },
+              "accountDetailKey": "2023-24",
+              "amount": 1499.0
+            }
+          ]
+        },
+        {
+          "glcode": "1105201",
+          "debitAmount": 0.0,
+          "creditAmount": 100.8,
+          "description": "Education Cess",
+          "function": {
+            "code": "000201"
+          },
+          "subledgerDetails": [
+            {
+              "accountDetailType": {
+                "name": "FinancialYear"
+              },
+              "accountDetailKey": "2023-24",
+              "amount": 100.8
+            }
+          ]
+        },
+        {
+          "glcode": "1100108",
+          "debitAmount": 0.0,
+          "creditAmount": 0.0,
+          "description": "Penalty PT",
+          "function": {
+            "code": "000201"
+          },
+          "subledgerDetails": [
+            {
+              "accountDetailType": {
+                "name": "FinancialYear"
+              },
+              "accountDetailKey": "2023-24",
+              "amount": 0.0
+            }
+          ]
+        },
+        {
+          "glcode": "1100109",
+          "debitAmount": 0.0,
+          "creditAmount": 0.0,
+          "description": "Interest PT",
+          "function": {
+            "code": "000201"
+          },
+          "subledgerDetails": [
+            {
+              "accountDetailType": {
+                "name": "FinancialYear"
+              },
+              "accountDetailKey": "2023-24",
+              "amount": 0.0
+            }
+          ]
+        },
+        {
+          "glcode": "1100107",
+          "debitAmount": 0.0,
+          "creditAmount": 0.0,
+          "description": "Surcharge PT",
+          "function": {
+            "code": "000201"
+          },
+          "subledgerDetails": [
+            {
+              "accountDetailType": {
+                "name": "FinancialYear"
+              },
+              "accountDetailKey": "2023-24",
+              "amount": 0.0
+            }
+          ]
+        },
+        {
+          "glcode": "1109001",
+          "debitAmount": 0.0,
+          "creditAmount": 0.0,
+          "description": "Tax Remission & Refunds PT",
+          "function": {
+            "code": "000201"
+          },
+          "subledgerDetails": [
+            {
+              "accountDetailType": {
+                "name": "FinancialYear"
+              },
+              "accountDetailKey": "2023-24",
+              "amount": 0.0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

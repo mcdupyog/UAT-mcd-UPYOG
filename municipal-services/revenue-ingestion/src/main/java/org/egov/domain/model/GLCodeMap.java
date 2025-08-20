@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GLCodeMapping {
+public class GLCodeMap {
     private String serviceCode;
     private String componentCode;
     private String componentName;

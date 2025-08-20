@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
-import org.egov.config.IngestionServiceConfig;
-import org.egov.domain.model.GLCodeMapping;
+import org.egov.config.IngestionConfiguratonProperties;
+import org.egov.domain.model.GLCodeMap;
 import org.egov.mdms.model.MasterDetail;
 import org.egov.mdms.model.MdmsCriteria;
 import org.egov.mdms.model.MdmsCriteriaReq;
@@ -22,24 +22,22 @@ import java.util.stream.Collectors;
 @Component
 public class MdmsUtil {
 
-
-    private final IngestionServiceConfig config;
-
-    @Autowired
+    private final IngestionConfiguratonProperties config;
     private final ServiceRequestRepository serviceRequestRepository;
     private final ObjectMapper objectMapper;
 
     @Autowired
-    public MdmsUtil(IngestionServiceConfig config,
+    public MdmsUtil(IngestionConfiguratonProperties config,
                     ServiceRequestRepository serviceRequestRepository,
                     ObjectMapper objectMapper) {
         this.config = config;
         this.serviceRequestRepository = serviceRequestRepository;
         this.objectMapper = objectMapper;
+
     }
 
 
-    public List<GLCodeMapping> fetchGLCodeMapping(String tenantId, String serviceCode, RequestInfo requestInfo) throws JsonProcessingException {
+    public List<GLCodeMap> fetchGLCodeMapping(String tenantId, String serviceCode, RequestInfo requestInfo) throws JsonProcessingException {
 
         log.info("Fetching GLCodeMapping from MDMS response for tenant: {}", tenantId);
 
@@ -76,7 +74,7 @@ public class MdmsUtil {
             List<Map<String, Object>> result = JsonPath.read(response, jsonPath);
 
             return result.stream()
-                    .map(map -> objectMapper.convertValue(map, GLCodeMapping.class))
+                    .map(map -> objectMapper.convertValue(map, GLCodeMap.class))
                     .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("Error parsing GLCodeMapping from MDMS response", e);

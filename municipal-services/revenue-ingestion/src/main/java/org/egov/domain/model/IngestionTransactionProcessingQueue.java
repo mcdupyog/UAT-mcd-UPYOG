@@ -15,13 +15,13 @@ import java.util.UUID;
 
 @TypeDef(name = "jsonb", typeClass = JsonType.class)
 @Entity
-@Table(name = "eg_ingestion_transaction")
+@Table(name = "eg_ingestion_transaction_processing_queue")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class IngestionTransaction {
+public class IngestionTransactionProcessingQueue {
 
     @Id
     @GeneratedValue

@@ -4,12 +4,14 @@ package org.egov.web.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
-import org.egov.domain.model.GLCodeMapping;
+import org.egov.domain.model.GLCodeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -19,21 +21,21 @@ public class GLCodeMappingService {
     @Autowired
     private MdmsUtil mdmsUtil;
 
-    private final Map<String, Map<String, GLCodeMapping>> cache = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, GLCodeMap>> cache = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper;
 
     public GLCodeMappingService(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
-    @PostConstruct
-    public void loadMappings() {
+    //@PostConstruct
+    public void loadMappings(String tenantId, String serviceCode, RequestInfo requestInfo) {
         try {
-            RequestInfo requestInfo = RequestInfo.builder().authToken("xyz").build();
-            List<GLCodeMapping> glMappings = mdmsUtil.fetchGLCodeMapping("pg.mcd", "PTR", requestInfo);
+            //RequestInfo requestInfo = RequestInfo.builder().authToken("xyz").build();
+            List<GLCodeMap> glMappings = mdmsUtil.fetchGLCodeMapping(tenantId, serviceCode, requestInfo);
 
             log.info("Loaded {} GL mappings from MDMS", objectMapper.writeValueAsString(glMappings));
-            for (GLCodeMapping entry : glMappings) {
+            for (GLCodeMap entry : glMappings) {
                 String service = entry.getServiceCode();
                 String component = entry.getComponentCode();
 
@@ -52,21 +54,21 @@ public class GLCodeMappingService {
     public String getDebitGL(String serviceCode, String componentCode) {
         return Optional.ofNullable(cache.get(serviceCode))
                 .map(map -> map.get(componentCode))
-                .map(GLCodeMapping::getDebitGL)
+                .map(GLCodeMap::getDebitGL)
                 .orElse("4100000");
     }
 
     public String getCreditGL(String serviceCode, String componentCode) {
         return Optional.ofNullable(cache.get(serviceCode))
                 .map(map -> map.get(componentCode))
-                .map(GLCodeMapping::getCreditGL)
+                .map(GLCodeMap::getCreditGL)
                 .orElse("4201001");
     }
 
     public String getComponentName(String serviceCode, String componentCode) {
         return Optional.ofNullable(cache.get(serviceCode))
                 .map(map -> map.get(componentCode))
-                .map(GLCodeMapping::getComponentName)
+                .map(GLCodeMap::getComponentName)
                 .orElse("UNKNOWN_COMPONENT");
     }
 } // GLCodeMappingService

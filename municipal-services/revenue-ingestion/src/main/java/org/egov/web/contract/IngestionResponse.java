@@ -18,4 +18,5 @@ public class IngestionResponse {
     private String tenantId;                      // For clarity
     private LocalDateTime responseGeneratedAt;    // For audit/timestamping
     private int totalCount;
+    private String status;
 }

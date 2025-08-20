@@ -1,9 +1,11 @@
 package org.egov.domain.model;
 
 
-import javax.persistence.*;
 import lombok.*;
-import java.util.List;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 /**
  * Represents a single financial year object for a transaction.
@@ -13,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class IngestionCalculation {
+public class FinancialYearDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,5 +29,5 @@ public class IngestionCalculation {
     private Double totalAmount;
     private Double finalAmount;
 
-    private List<FinancialYearComponent> components;  // Financial year components
+    private CalculationDetails components;  // Financial year components
 }

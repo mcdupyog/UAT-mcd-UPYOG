@@ -23,7 +23,9 @@ public class IngestionConstants {
     public static final String STATUS_APPROVED = "APPROVED";
     public static final String STATUS_REJECTED = "REJECTED";
     public static final String STATUS_CANCELLED = "CANCELLED";
+    public static final String STATUS_RECEIVED = "RECEIVED";
 
-    public static final String INGESTION_TOPIC = "save-revenue-transactions";
+    public static final String SAVE_REVENUE_INGESTION_TOPIC = "${egov.save-revenue-ingestion-topic}";
     public static final String DATE_FORMAT = "dd-MM-yyyy HH:mm:ss";
+
 }

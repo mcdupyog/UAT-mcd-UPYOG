@@ -1,6 +1,5 @@
 package org.egov.domain.model;
 
-import javax.persistence.*;
 import lombok.*;
 
 import java.util.Map;
@@ -13,7 +12,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FinancialYearComponent {
+public class CalculationDetails {
 
 //    private Double tax;
 //    private Double educationCess;

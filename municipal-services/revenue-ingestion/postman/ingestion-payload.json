@@ -17,7 +17,7 @@
       "transactionStatus": "Success",
       "transactionInitiatedOn": "2025-06-14",
       "transactionModifiedOn": "2025-06-14",
-      "paymentAggregrator": "HDFC",
+      "paymentAggregator": "HDFC",
       "calculationJson": [
         {
           "financialYear": "2023-24",
@@ -60,7 +60,8 @@
             "rebateDescription": "- ONLINE SUBMITTED sAMOUNT DEDUCTED OF RS .(1600)"
           }
         }
-      ]
+      ],
+      "status": "RECEIVED"
     }
   ]
 }

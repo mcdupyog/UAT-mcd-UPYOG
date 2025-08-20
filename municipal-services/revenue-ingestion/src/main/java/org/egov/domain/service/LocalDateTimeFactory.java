@@ -9,7 +9,7 @@ import java.time.ZoneId;
 @Service
 public class LocalDateTimeFactory {
 
-    @Value("${app.timezone}")
+    @Value("${egov.timezone}")
     private String timeZone;
 
     public LocalDateTime now() {

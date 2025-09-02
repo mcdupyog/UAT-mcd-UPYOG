@@ -24,7 +24,7 @@
     "@mcd89/digit-ui-module-reportgeneration": "1.0.0",
     "@mcd89/digit-ui-module-revenueaccounting": "1.0.0",
     "@mcd89/digit-ui-module-jv": "1.0.0",
-    "@mcd89/digit-ui-module-expenditureAccounting": "1.0.0",
+    "@mcd89/digit-ui-module-expenditureaccounting": "1.0.0",
     "@egovernments/digit-ui-module-utilities": "1.0.0",
     "@egovernments/digit-ui-module-engagement": "1.8.0",
     "@mcd89/finance-ui-react-components": "1.0.0",

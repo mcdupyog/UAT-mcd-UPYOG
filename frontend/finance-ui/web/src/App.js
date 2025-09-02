@@ -50,7 +50,7 @@ import {
   initPGRComponents,
   PGRReducers,
 } from "@egovernments/digit-ui-module-pgr";
-import { ExpenditureAccountingModule, initExpenditureAccountingComponents } from "@mcd89/digit-ui-module-expenditureAccounting";
+import { ExpenditureAccountingModule, initExpenditureAccountingComponents } from "@mcd89/digit-ui-module-expenditureaccounting";
 
 window.contextPath = window?.globalConfigs?.getConfig("CONTEXT_PATH");
 

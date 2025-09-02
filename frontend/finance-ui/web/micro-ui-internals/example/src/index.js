@@ -24,7 +24,7 @@ import { RevenueAccountingModule, initRevenueAccountingComponents } from "@mcd89
 
 import { pgrCustomizations } from "./pgr";
 import { UICustomizations } from "./UICustomizations";
-import { ExpenditureAccountingModule, initExpenditureAccountingComponents } from "@mcd89/digit-ui-module-expenditureAccounting";
+import { ExpenditureAccountingModule, initExpenditureAccountingComponents } from "@mcd89/digit-ui-module-expenditureaccounting";
 
 var Digit = window.Digit || {};
 

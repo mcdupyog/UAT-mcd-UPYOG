@@ -10,11 +10,7 @@
   "workspaces": [
     "micro-ui-internals/packages/libraries",
     "micro-ui-internals/packages/react-components",
-    "micro-ui-internals/packages/modules/budget",
-    "micro-ui-internals/packages/modules/finance2",
-    "micro-ui-internals/packages/modules/core",
-    "micro-ui-internals/packages/modules/jv",
-    "micro-ui-internals/packages/modules/expenditureAccounting"
+    "micro-ui-internals/packages/modules/core"
   ],
   "homepage": "/digit-ui",
   "dependencies": {
@@ -33,7 +29,7 @@
     "@mcd89/digit-ui-module-contra": "1.0.0",
     "@mcd89/digit-ui-module-reportgeneration": "1.0.0",
     "@mcd89/digit-ui-module-revenueaccounting": "1.0.0",
-    "@mcd89/digit-ui-module-expenditureAccounting": "1.0.0",
+    "@mcd89/digit-ui-module-expenditureaccounting": "1.0.0",
     "@egovernments/digit-ui-module-common": "1.8.0",
     "@egovernments/digit-ui-module-utilities": "1.0.0",
     "@egovernments/digit-ui-module-engagement": "1.8.0",

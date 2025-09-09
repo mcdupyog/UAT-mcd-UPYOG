@@ -249,11 +249,11 @@ function Assignment({
           </div>
         </LabelFieldPair>
         <LabelFieldPair>
-          <CardLabel className={assignment?.id ? "card-label-smaller disabled" : "card-label-smaller"}> {`${t("HR_DEPT_LABEL")} * `}</CardLabel>
+          <CardLabel className="card-label-smaller">{`${t("HR_DEPT_LABEL")} * `}</CardLabel>
           <Dropdown
             className="form-field"
             selected={assignment?.department}
-            disable={assignment?.id ? true : false}
+            disable={false}
             optionKey={"i18key"}
             option={getdepartmentdata(department) || []}
             select={selectDepartment}
@@ -262,11 +262,11 @@ function Assignment({
         </LabelFieldPair>
 
         <LabelFieldPair>
-          <CardLabel className={assignment?.id ? "card-label-smaller disabled" : "card-label-smaller"}>{`${t("HR_DESG_LABEL")} * `}</CardLabel>
+          <CardLabel className="card-label-smaller">{`${t("HR_DESG_LABEL")} * `}</CardLabel>
           <Dropdown
             className="form-field"
             selected={assignment?.designation}
-            disable={assignment?.id ? true : false}
+            disable={false}
             option={getdesignationdata(designation) || []}
             select={selectDesignation}
             optionKey={"i18key"}

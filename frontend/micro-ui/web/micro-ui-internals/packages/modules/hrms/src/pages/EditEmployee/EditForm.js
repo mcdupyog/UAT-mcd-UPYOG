@@ -212,8 +212,6 @@ const EditForm = ({ tenantId, data }) => {
   }
 
   const config =mdmsData?.config?mdmsData.config: newConfig;
-  console.log(config);
-  console.log(newConfig);
   return (
     <div>
       <FormComposer

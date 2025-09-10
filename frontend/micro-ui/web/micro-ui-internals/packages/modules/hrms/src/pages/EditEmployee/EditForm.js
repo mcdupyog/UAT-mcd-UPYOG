@@ -13,9 +13,9 @@ const EditForm = ({ tenantId, data }) => {
   const [mobileNumber, setMobileNumber] = useState(null);
   const [phonecheck, setPhonecheck] = useState(false);
   const [checkfield, setcheck] = useState(false);
-   const { data: mdmsData,isLoading } = Digit.Hooks.useCommonMDMS(Digit.ULBService.getStateId(), "egov-hrms", ["CommonFieldsConfig"], {
+  const { data: mdmsData,isLoading } = Digit.Hooks.useCommonMDMS(Digit.ULBService.getStateId(), "egov-hrms", ["CommonFieldsConfig"], {
     select: (data) => {
-       return {
+      return {
         config: data?.MdmsRes?.['egov-hrms']?.CommonFieldsConfig
       };
     },
@@ -80,7 +80,11 @@ const EditForm = ({ tenantId, data }) => {
         },
         boundaryType: { label: ele.boundaryType, i18text:`EGOV_LOCATION_BOUNDARYTYPE_${ele.boundaryType.toUpperCase()}` },
         boundary: { code: ele.boundary },
-        zone: { code: ele.zone },
+        zone: { 
+          code: ele.zone, 
+          i18text: "TENANT_" + ele.zone, 
+          name: ele.zone 
+        },
         roles: data?.user?.roles.filter((item) => item.tenantId == ele.boundary),
       }); 
     }),
@@ -93,10 +97,12 @@ const EditForm = ({ tenantId, data }) => {
         designation: {
           code: ele.designation,
           i18key: "COMMON_MASTERS_DESIGNATION_" + ele.designation,
+          name: ele.designation,
         },
         department: {
           code: ele.department,
           i18key: "COMMON_MASTERS_DEPARTMENT_" + ele.department,
+          name: ele.department,
         },
       });
     }),
@@ -206,6 +212,8 @@ const EditForm = ({ tenantId, data }) => {
   }
 
   const config =mdmsData?.config?mdmsData.config: newConfig;
+  console.log(config);
+  console.log(newConfig);
   return (
     <div>
       <FormComposer

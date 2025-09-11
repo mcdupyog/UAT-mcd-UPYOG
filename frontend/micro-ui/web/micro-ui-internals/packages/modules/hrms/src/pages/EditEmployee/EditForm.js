@@ -104,6 +104,11 @@ const EditForm = ({ tenantId, data }) => {
           i18key: "COMMON_MASTERS_DEPARTMENT_" + ele.department,
           name: ele.department,
         },
+        division: {
+          code: ele.division,
+          i18key: "COMMON_MASTERS_DIVISION_" + ele.division,
+          name: ele.division,
+        },
       });
     }),
   };

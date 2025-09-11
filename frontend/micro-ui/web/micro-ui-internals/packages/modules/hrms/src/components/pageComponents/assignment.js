@@ -125,7 +125,7 @@
       return mapping
         ? mapping.divisions.map((div) => ({
             ...div,
-            i18key: t("COMMON_MASTERS_DIVISION_" + div.divisionName),
+            i18key: t("COMMON_MASTERS_DIVISION_" + div.divisionCode),
           }))
         : [];
     }

@@ -5,10 +5,7 @@ import { convertEpochToDate } from "../Utils/index";
 
 const Assignments = ({ t, config, onSelect, userType, formData }) => {
   const tenantId = Digit.ULBService.getCurrentTenantId();
-  const tenant = tenantId?.includes(".") ? tenantId.split(".")[0] : tenantId;
   const { data: data = {}, isLoading } = Digit.Hooks.hrms.useHrmsMDMS(tenantId, "egov-hrms", "HRMSRolesandDesignation") || {};
-  const { data: commonData = {} } = Digit.Hooks.useCommonMDMS(tenant, "common-masters", ["ZoneDivisionMapping"]) || {};
-
   const [currentassignemtDate, setCurrentAssiginmentDate] = useState(null);
   const [assignments, setassignments] = useState(
     formData?.Assignments || [
@@ -19,11 +16,9 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
         isCurrentAssignment: false,
         department: null,
         designation: null,
-        division: commonData?.["common-masters"]?.ZoneDivisionMapping?.length === 0 ? null : undefined,
       },
     ]
   );
-
   const reviseIndexKeys = () => {
     setassignments((prev) => prev.map((unit, index) => ({ ...unit, key: index })));
   };
@@ -38,7 +33,6 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
         isCurrentAssignment: false,
         department: null,
         designation: null,
-        division: null,
       },
     ]);
   };
@@ -51,67 +45,21 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
     reviseIndexKeys();
   };
 
-  const getDivisionData = (department, assignmentKey) => {
-    const mappings = commonData?.["common-masters"]?.ZoneDivisionMapping || [];
-    const selectedZone = formData?.Jurisdictions?.[0]?.zone;
-    if (!department || !selectedZone) return [];
-    const mapping = mappings.find((m) => m.zoneCode === selectedZone && m.departmentCode === department.code);
-    return mapping
-      ? mapping.divisions.map((div) => ({
-          ...div,
-          i18key: t("COMMON_MASTERS_DIVISION_" + div.divisionCode),
-        }))
-      : [];
-  };
-
-  // Auto-set division if missing
-  const prevZoneRef = React.useRef();
-  useEffect(() => {
-    const selectedZone = formData?.Jurisdictions?.[0]?.zone;
-    // Skip first render (initial load)
-    if (!prevZoneRef.current) {
-      prevZoneRef.current = selectedZone;
-      return;
-    }
-    // Only run if zone actually changed
-    if (selectedZone && prevZoneRef.current !== selectedZone) {
-      setassignments((prev) =>
-        prev.map((item) => {
-          if (!item.department) return item;
-
-          const divisions = getDivisionData(item.department, item.key);
-          const stillValid = divisions.find(
-            (d) => d.divisionCode === item?.division?.divisionCode
-          );
-
-          if (stillValid) return item;
-
-          const autoDivision = divisions.length === 1 ? divisions[0] : null;
-          return { ...item, division: autoDivision };
-        })
-      );
-    }
-
-    prevZoneRef.current = selectedZone;
-  }, [formData?.Jurisdictions?.[0]?.zone]);
-
-
   useEffect(() => {
     var promises = assignments?.map((assignment) => {
       return assignment
         ? cleanup({
-            id: assignment?.id,
-            position: assignment?.position,
-            govtOrderNumber: assignment?.govtOrderNumber,
-            tenantid: assignment?.tenantid,
-            auditDetails: assignment?.auditDetails,
-            fromDate: assignment?.fromDate ? new Date(assignment?.fromDate).getTime() : undefined,
-            toDate: assignment?.toDate ? new Date(assignment?.toDate).getTime() : undefined,
-            isCurrentAssignment: assignment?.isCurrentAssignment,
-            department: assignment?.department?.code,
-            designation: assignment?.designation?.code,
-            division: assignment?.division?.divisionCode,
-          })
+          id: assignment?.id,
+          position: assignment?.position,
+          govtOrderNumber: assignment?.govtOrderNumber,
+          tenantid: assignment?.tenantid,
+          auditDetails: assignment?.auditDetails,
+          fromDate: assignment?.fromDate ? new Date(assignment?.fromDate).getTime() : undefined,
+          toDate: assignment?.toDate ? new Date(assignment?.toDate).getTime() : undefined,
+          isCurrentAssignment: assignment?.isCurrentAssignment,
+          department: assignment?.department?.code,
+          designation: assignment?.designation?.code,
+        })
         : [];
     });
 
@@ -145,9 +93,9 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
       return ele;
     });
   }
-
-  if (isLoading) return <Loader />;
-
+  if (isLoading) {
+    return <Loader />;
+  }
   return (
     <div>
       {assignments?.map((assignment, index) => (
@@ -165,7 +113,6 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
           department={department}
           designation={designation}
           getdesignationdata={getdesignationdata}
-          getdivisiondata={getDivisionData}
           assignments={assignments}
           handleRemoveUnit={handleRemoveUnit}
           setCurrentAssiginmentDate={setCurrentAssiginmentDate}
@@ -178,7 +125,6 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
     </div>
   );
 };
-
 function Assignment({
   t,
   assignment,
@@ -193,24 +139,16 @@ function Assignment({
   handleRemoveUnit,
   designation,
   getdesignationdata,
-  getdivisiondata,
   setCurrentAssiginmentDate,
   currentassignemtDate,
 }) {
   const selectDepartment = (value) => {
-    const availableDivisions = getdivisiondata(value, assignment.key);
-    const autoDivision = availableDivisions.length === 1 ? availableDivisions[0] : null;
-
-    setassignments((pre) => pre.map((item) => (item.key === assignment.key ? { ...item, department: value, division: autoDivision } : item)));
+    setassignments((pre) => pre.map((item) => (item.key === assignment.key ? { ...item, department: value } : item)));
   };
-
   const selectDesignation = (value) => {
     setassignments((pre) => pre.map((item) => (item.key === assignment.key ? { ...item, designation: value } : item)));
   };
 
-  const selectDivision = (value) => {
-    setassignments((pre) => pre.map((item) => (item.key === assignment.key ? { ...item, division: value } : item)));
-  };
   const onAssignmentChange = (value) => {
     setassignments((pre) =>
       pre.map((item) => (item.key === assignment.key ? { ...item, isCurrentAssignment: value } : { ...item, isCurrentAssignment: false }))
@@ -220,9 +158,9 @@ function Assignment({
         pre.map((item) =>
           item.key === assignment.key
             ? {
-                ...item,
-                toDate: null,
-              }
+              ...item,
+              toDate: null,
+            }
             : item
         )
       );
@@ -259,10 +197,7 @@ function Assignment({
         </LabelFieldPair>
 
         <LabelFieldPair>
-          <CardLabel className={assignment?.id ? "card-label-smaller disabled" : "card-label-smaller"}>
-            {" "}
-            {`${t("HR_ASMT_FROM_DATE_LABEL")} * `}{" "}
-          </CardLabel>
+          <CardLabel className={assignment?.id ? "card-label-smaller disabled" : "card-label-smaller"}> {`${t("HR_ASMT_FROM_DATE_LABEL")} * `} </CardLabel>
           <div className="field">
             <DatePicker
               type="date"
@@ -322,19 +257,6 @@ function Assignment({
             optionKey={"i18key"}
             option={getdepartmentdata(department) || []}
             select={selectDepartment}
-            t={t}
-          />
-        </LabelFieldPair>
-
-        <LabelFieldPair>
-          <CardLabel className="card-label-smaller">{`${t("HR_DIVS_LABEL")} `}</CardLabel>
-          <Dropdown
-            className="form-field"
-            selected={assignment?.division}
-            disable={!assignment?.department}
-            optionKey={"i18key"}
-            option={getdivisiondata(assignment?.department, assignment.key)}
-            select={selectDivision}
             t={t}
           />
         </LabelFieldPair>

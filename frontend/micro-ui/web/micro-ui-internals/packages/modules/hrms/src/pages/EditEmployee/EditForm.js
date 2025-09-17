@@ -104,11 +104,6 @@ const EditForm = ({ tenantId, data }) => {
           i18key: "COMMON_MASTERS_DEPARTMENT_" + ele.department,
           name: ele.department,
         },
-        division: {
-          divisionCode: ele.division,
-          i18key: "COMMON_MASTERS_DIVISION_" + ele.division,
-          divisionName: ele.division,
-        },
       });
     }),
   };
@@ -217,6 +212,8 @@ const EditForm = ({ tenantId, data }) => {
   }
 
   const config =mdmsData?.config?mdmsData.config: newConfig;
+  console.log(config);
+  console.log(newConfig);
   return (
     <div>
       <FormComposer

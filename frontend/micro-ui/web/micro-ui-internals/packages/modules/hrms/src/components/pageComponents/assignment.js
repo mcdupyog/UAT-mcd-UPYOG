@@ -5,7 +5,10 @@ import { convertEpochToDate } from "../Utils/index";
 
 const Assignments = ({ t, config, onSelect, userType, formData }) => {
   const tenantId = Digit.ULBService.getCurrentTenantId();
+  const tenant = tenantId?.includes(".") ? tenantId.split(".")[0] : tenantId;
   const { data: data = {}, isLoading } = Digit.Hooks.hrms.useHrmsMDMS(tenantId, "egov-hrms", "HRMSRolesandDesignation") || {};
+  const { data: commonData = {} } = Digit.Hooks.useCommonMDMS(tenant, "common-masters", ["ZoneDivisionMapping"]) || {};
+
   const [currentassignemtDate, setCurrentAssiginmentDate] = useState(null);
   const [assignments, setassignments] = useState(
     formData?.Assignments || [
@@ -16,9 +19,11 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
         isCurrentAssignment: false,
         department: null,
         designation: null,
+        division: commonData?.["common-masters"]?.ZoneDivisionMapping?.length === 0 ? null : undefined,
       },
     ]
   );
+
   const reviseIndexKeys = () => {
     setassignments((prev) => prev.map((unit, index) => ({ ...unit, key: index })));
   };
@@ -33,6 +38,7 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
         isCurrentAssignment: false,
         department: null,
         designation: null,
+        division: null,
       },
     ]);
   };
@@ -45,10 +51,51 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
     reviseIndexKeys();
   };
 
-  useEffect(() => {
-    var promises = assignments?.map((assignment) => {
-      return assignment
-        ? cleanup({
+ const getDivisionData = (department, assignmentKey) => {
+  const mappings = commonData?.["common-masters"]?.ZoneDivisionMapping || [];
+  const selectedZone = formData?.Jurisdictions?.[0]?.zone;
+  
+  if (!department || !selectedZone) return [];
+  
+  // Use department code if department is an object, otherwise use department directly
+  const departmentCode = typeof department === 'object' ? department.code : department;
+  
+  const mapping = mappings.find((m) => m.zoneCode === selectedZone && m.departmentCode === departmentCode);
+  
+  return mapping
+    ? mapping.divisions.map((div) => ({
+        ...div,
+        divisionCode: div.divisionCode || div.code, // Ensure divisionCode is available
+        i18key: t("COMMON_MASTERS_DIVISION_" + (div.divisionCode || div.code)),
+      }))
+    : [];
+};
+
+ useEffect(() => {
+  const selectedZone = formData?.Jurisdictions?.[0]?.zone;
+  if (selectedZone) {
+    setassignments((prev) =>
+      prev.map((item) => {
+        // Only auto-set division if department exists and division is null/undefined
+        if (item.department && (item.division === null || item.division === undefined)) {
+          const divisions = getDivisionData(item.department, item.key);
+          const autoDivision = divisions.length === 1 ? divisions[0] : null;
+          return {
+            ...item,
+            division: autoDivision,
+          };
+        }
+        return item;
+      })
+    );
+  }
+}, [formData?.Jurisdictions?.[0]?.zone]);
+
+// Make sure the cleanup function sends data in the format expected by backend
+useEffect(() => {
+  var promises = assignments?.map((assignment) => {
+    return assignment
+      ? cleanup({
           id: assignment?.id,
           position: assignment?.position,
           govtOrderNumber: assignment?.govtOrderNumber,
@@ -57,25 +104,27 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
           fromDate: assignment?.fromDate ? new Date(assignment?.fromDate).getTime() : undefined,
           toDate: assignment?.toDate ? new Date(assignment?.toDate).getTime() : undefined,
           isCurrentAssignment: assignment?.isCurrentAssignment,
-          department: assignment?.department?.code,
-          designation: assignment?.designation?.code,
+          // Send only codes as strings, not objects
+          department: assignment?.department?.code || assignment?.department,
+          designation: assignment?.designation?.code || assignment?.designation,
+          division: assignment?.division?.divisionCode || assignment?.division?.code || assignment?.division,
         })
-        : [];
-    });
+      : [];
+  });
 
-    Promise.all(promises).then(function (results) {
-      onSelect(
-        config.key,
-        results.filter((value) => Object.keys(value).length !== 0)
-      );
-    });
+  Promise.all(promises).then(function (results) {
+    onSelect(
+      config.key,
+      results.filter((value) => Object.keys(value).length !== 0)
+    );
+  });
 
-    assignments.map((ele) => {
-      if (ele.isCurrentAssignment) {
-        setCurrentAssiginmentDate(ele.fromDate);
-      }
-    });
-  }, [assignments]);
+  assignments.map((ele) => {
+    if (ele.isCurrentAssignment) {
+      setCurrentAssiginmentDate(ele.fromDate);
+    }
+  });
+}, [assignments]);
 
   let department = [];
   let designation = [];
@@ -93,9 +142,9 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
       return ele;
     });
   }
-  if (isLoading) {
-    return <Loader />;
-  }
+
+  if (isLoading) return <Loader />;
+
   return (
     <div>
       {assignments?.map((assignment, index) => (
@@ -113,6 +162,7 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
           department={department}
           designation={designation}
           getdesignationdata={getdesignationdata}
+          getDivisionData={getDivisionData}
           assignments={assignments}
           handleRemoveUnit={handleRemoveUnit}
           setCurrentAssiginmentDate={setCurrentAssiginmentDate}
@@ -125,6 +175,7 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
     </div>
   );
 };
+
 function Assignment({
   t,
   assignment,
@@ -139,16 +190,30 @@ function Assignment({
   handleRemoveUnit,
   designation,
   getdesignationdata,
+  getDivisionData,
   setCurrentAssiginmentDate,
   currentassignemtDate,
 }) {
-  const selectDepartment = (value) => {
-    setassignments((pre) => pre.map((item) => (item.key === assignment.key ? { ...item, department: value } : item)));
-  };
+ const selectDepartment = (value) => {
+  const availableDivisions = getDivisionData(value, assignment.key);
+  const autoDivision = availableDivisions.length === 1 ? availableDivisions[0] : null;
+
+  setassignments((pre) => pre.map((item) => {
+    if (item.key === assignment.key) {
+      return { ...item, department: value, division: autoDivision };
+    }
+    // Preserve existing assignments without modification
+    return item;
+  }));
+}
+
   const selectDesignation = (value) => {
     setassignments((pre) => pre.map((item) => (item.key === assignment.key ? { ...item, designation: value } : item)));
   };
 
+  const selectDivision = (value) => {
+    setassignments((pre) => pre.map((item) => (item.key === assignment.key ? { ...item, division: value } : item)));
+  };
   const onAssignmentChange = (value) => {
     setassignments((pre) =>
       pre.map((item) => (item.key === assignment.key ? { ...item, isCurrentAssignment: value } : { ...item, isCurrentAssignment: false }))
@@ -158,9 +223,9 @@ function Assignment({
         pre.map((item) =>
           item.key === assignment.key
             ? {
-              ...item,
-              toDate: null,
-            }
+                ...item,
+                toDate: null,
+              }
             : item
         )
       );
@@ -197,7 +262,10 @@ function Assignment({
         </LabelFieldPair>
 
         <LabelFieldPair>
-          <CardLabel className={assignment?.id ? "card-label-smaller disabled" : "card-label-smaller"}> {`${t("HR_ASMT_FROM_DATE_LABEL")} * `} </CardLabel>
+          <CardLabel className={assignment?.id ? "card-label-smaller disabled" : "card-label-smaller"}>
+            {" "}
+            {`${t("HR_ASMT_FROM_DATE_LABEL")} * `}{" "}
+          </CardLabel>
           <div className="field">
             <DatePicker
               type="date"
@@ -257,6 +325,19 @@ function Assignment({
             optionKey={"i18key"}
             option={getdepartmentdata(department) || []}
             select={selectDepartment}
+            t={t}
+          />
+        </LabelFieldPair>
+
+        <LabelFieldPair>
+          <CardLabel className="card-label-smaller">{`${t("HR_DIVS_LABEL")} `}</CardLabel>
+          <Dropdown
+            className="form-field"
+            selected={assignment?.division}
+            disable={!assignment?.department}
+            optionKey={"i18key"}
+            option={getDivisionData(assignment?.department, assignment.key)}
+            select={selectDivision}
             t={t}
           />
         </LabelFieldPair>

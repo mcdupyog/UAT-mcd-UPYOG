@@ -10,6 +10,7 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
   const { data: commonData = {} } = Digit.Hooks.useCommonMDMS(tenant, "common-masters", ["ZoneDivisionMapping"]) || {};
 
   const [currentassignemtDate, setCurrentAssiginmentDate] = useState(null);
+  const [previousZone, setPreviousZone] = useState(null); // Track previous zone
   const [assignments, setassignments] = useState(
     formData?.Assignments || [
       {
@@ -19,7 +20,7 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
         isCurrentAssignment: false,
         department: null,
         designation: null,
-        division: commonData?.["common-masters"]?.ZoneDivisionMapping?.length === 0 ? null : undefined,
+        division: null,
       },
     ]
   );
@@ -51,80 +52,99 @@ const Assignments = ({ t, config, onSelect, userType, formData }) => {
     reviseIndexKeys();
   };
 
- const getDivisionData = (department, assignmentKey) => {
-  const mappings = commonData?.["common-masters"]?.ZoneDivisionMapping || [];
-  const selectedZone = formData?.Jurisdictions?.[0]?.zone;
-  
-  if (!department || !selectedZone) return [];
-  
-  // Use department code if department is an object, otherwise use department directly
-  const departmentCode = typeof department === 'object' ? department.code : department;
-  
-  const mapping = mappings.find((m) => m.zoneCode === selectedZone && m.departmentCode === departmentCode);
-  
-  return mapping
-    ? mapping.divisions.map((div) => ({
-        ...div,
-        divisionCode: div.divisionCode || div.code, // Ensure divisionCode is available
-        i18key: t("COMMON_MASTERS_DIVISION_" + (div.divisionCode || div.code)),
-      }))
-    : [];
-};
+  const getDivisionData = (department, assignmentKey) => {
+    const mappings = commonData?.["common-masters"]?.ZoneDivisionMapping || [];
+    const selectedZone = formData?.Jurisdictions?.[0]?.zone;
 
- useEffect(() => {
-  const selectedZone = formData?.Jurisdictions?.[0]?.zone;
-  if (selectedZone) {
-    setassignments((prev) =>
-      prev.map((item) => {
-        // Only auto-set division if department exists and division is null/undefined
-        if (item.department && (item.division === null || item.division === undefined)) {
-          const divisions = getDivisionData(item.department, item.key);
-          const autoDivision = divisions.length === 1 ? divisions[0] : null;
-          return {
-            ...item,
-            division: autoDivision,
-          };
-        }
-        return item;
-      })
-    );
-  }
-}, [formData?.Jurisdictions?.[0]?.zone]);
+    if (!department || !selectedZone) return [];
 
-// Make sure the cleanup function sends data in the format expected by backend
-useEffect(() => {
-  var promises = assignments?.map((assignment) => {
-    return assignment
-      ? cleanup({
-          id: assignment?.id,
-          position: assignment?.position,
-          govtOrderNumber: assignment?.govtOrderNumber,
-          tenantid: assignment?.tenantid,
-          auditDetails: assignment?.auditDetails,
-          fromDate: assignment?.fromDate ? new Date(assignment?.fromDate).getTime() : undefined,
-          toDate: assignment?.toDate ? new Date(assignment?.toDate).getTime() : undefined,
-          isCurrentAssignment: assignment?.isCurrentAssignment,
-          // Send only codes as strings, not objects
-          department: assignment?.department?.code || assignment?.department,
-          designation: assignment?.designation?.code || assignment?.designation,
-          division: assignment?.division?.divisionCode || assignment?.division?.code || assignment?.division,
-        })
+    // Use department code if department is an object, otherwise use department directly
+    const departmentCode = typeof department === "object" ? department.code : department;
+
+    // Get zone code properly
+    const zoneCode = typeof selectedZone === "object" ? selectedZone.code || selectedZone : selectedZone;
+
+    const mapping = mappings.find((m) => m.zoneCode === zoneCode && m.departmentCode === departmentCode);
+
+    return mapping
+      ? mapping.divisions.map((div) => ({
+          ...div,
+          code: div.divisionCode || div.code,
+          divisionCode: div.divisionCode || div.code,
+          i18key: t("COMMON_MASTERS_DIVISION_" + (div.divisionCode || div.code)),
+        }))
       : [];
-  });
+  };
 
-  Promise.all(promises).then(function (results) {
-    onSelect(
-      config.key,
-      results.filter((value) => Object.keys(value).length !== 0)
-    );
-  });
+  useEffect(() => {
+    const selectedZone = formData?.Jurisdictions?.[0]?.zone;
+    const currentZoneCode = typeof selectedZone === "object" ? selectedZone.code || selectedZone : selectedZone;
 
-  assignments.map((ele) => {
-    if (ele.isCurrentAssignment) {
-      setCurrentAssiginmentDate(ele.fromDate);
+    // Only reset divisions if zone actually changed (not on initial load)
+    if (selectedZone && previousZone !== null && currentZoneCode !== previousZone) {
+      // Zone changed - reset divisions for all assignments
+      setassignments((prev) =>
+        prev.map((item) => {
+          if (item.department) {
+            const divisions = getDivisionData(item.department, item.key);
+            const autoDivision = divisions.length === 1 ? divisions[0] : null;
+            return { ...item, division: autoDivision };
+          }
+          return { ...item, division: null }; // Clear division if no department
+        })
+      );
+    } else if (selectedZone && previousZone === null) {
+      // Initial load - only auto-select division if no division is already set
+      setassignments((prev) =>
+        prev.map((item) => {
+          if (item.department && (item.division === null || item.division === undefined)) {
+            const divisions = getDivisionData(item.department, item.key);
+            const autoDivision = divisions.length === 1 ? divisions[0] : null;
+            return { ...item, division: autoDivision };
+          }
+          return item; // Keep existing division if it's already set
+        })
+      );
     }
-  });
-}, [assignments]);
+
+    // Update previous zone
+    setPreviousZone(currentZoneCode);
+  }, [formData?.Jurisdictions?.[0]?.zone]);
+
+  // Make sure the cleanup function sends data in the format expected by backend
+  useEffect(() => {
+    var promises = assignments?.map((assignment) => {
+      return assignment
+        ? cleanup({
+            id: assignment?.id,
+            position: assignment?.position,
+            govtOrderNumber: assignment?.govtOrderNumber,
+            tenantid: assignment?.tenantid,
+            auditDetails: assignment?.auditDetails,
+            fromDate: assignment?.fromDate ? new Date(assignment?.fromDate).getTime() : undefined,
+            toDate: assignment?.toDate ? new Date(assignment?.toDate).getTime() : undefined,
+            isCurrentAssignment: assignment?.isCurrentAssignment,
+            // Send only codes as strings, not objects - handle null divisions
+            department: assignment?.department?.code || assignment?.department,
+            designation: assignment?.designation?.code || assignment?.designation,
+            division: assignment?.division?.divisionCode || assignment?.division?.code || assignment?.division || null,
+          })
+        : [];
+    });
+
+    Promise.all(promises).then(function (results) {
+      onSelect(
+        config.key,
+        results.filter((value) => Object.keys(value).length !== 0)
+      );
+    });
+
+    assignments.map((ele) => {
+      if (ele.isCurrentAssignment) {
+        setCurrentAssiginmentDate(ele.fromDate);
+      }
+    });
+  }, [assignments]);
 
   let department = [];
   let designation = [];
@@ -194,18 +214,20 @@ function Assignment({
   setCurrentAssiginmentDate,
   currentassignemtDate,
 }) {
- const selectDepartment = (value) => {
-  const availableDivisions = getDivisionData(value, assignment.key);
-  const autoDivision = availableDivisions.length === 1 ? availableDivisions[0] : null;
+  const selectDepartment = (value) => {
+    const availableDivisions = getDivisionData(value, assignment.key);
+    const autoDivision = availableDivisions.length === 1 ? availableDivisions[0] : null;
 
-  setassignments((pre) => pre.map((item) => {
-    if (item.key === assignment.key) {
-      return { ...item, department: value, division: autoDivision };
-    }
-    // Preserve existing assignments without modification
-    return item;
-  }));
-}
+    setassignments((pre) =>
+      pre.map((item) => {
+        if (item.key === assignment.key) {
+          return { ...item, department: value, division: autoDivision };
+        }
+        // Preserve existing assignments without modification
+        return item;
+      })
+    );
+  };
 
   const selectDesignation = (value) => {
     setassignments((pre) => pre.map((item) => (item.key === assignment.key ? { ...item, designation: value } : item)));

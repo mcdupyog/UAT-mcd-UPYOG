@@ -53,8 +53,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -98,6 +103,21 @@ public class EmployeeController {
 	@PostMapping(value = "/_update")
 	@ResponseBody
 	public ResponseEntity<?> update(@RequestBody @Valid EmployeeRequest employeeRequest) {
+		
+		try {
+		    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		    
+		    String headerToken = request.getHeader("auth-token");
+		    String headertoken2 = request.getHeader("authToken");
+		    String finalToken = headerToken != null ? headerToken : headertoken2;
+		    // If RequestInfo token is null, inject the header token
+		    if (employeeRequest.getRequestInfo().getAuthToken() == null) {
+		    	employeeRequest.getRequestInfo().setAuthToken(finalToken);
+		    }
+		} catch (Exception e) {
+			log.debug("❌ Failed to fetch token from headers");
+		}
+		
 		validator.validateUpdateEmployee(employeeRequest);
 		EmployeeResponse employeeResponse = employeeService.update(employeeRequest);
 		return new ResponseEntity<>(employeeResponse, HttpStatus.ACCEPTED);

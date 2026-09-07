@@ -1,6 +1,6 @@
 {
   "name": "@mcd89/digit-ui-module-hrms",
-  "version": "1.2.26",
+  "version": "1.2.27",
   "description": "Digit HRMS Module",
   "license": "MIT",
   "main": "dist/index.js",
@@ -25,6 +25,10 @@
     "react-router-dom": "5.3.0",
     "rooks": "^4.4.0",
     "xlsx": "0.17.5"
+  },
+  "resolutions": {
+    "node-releases": "2.0.6",
+    "**/node-releases": "2.0.6"
   },
   "devDependencies": {},
   "author": ""
